@@ -1,0 +1,255 @@
+1、AngularJS简介
+	ng-app 指令定义一个 AngularJS 应用程序。<script src="http://apps.bdimg.com/libs/angular.js/1.4.6/angular.min.js"></script>
+	ng-model 指令把元素值（比如输入域的值）绑定到应用程序。
+		<div ng-app="">
+		  <p>姓名：<input type="text" ng-model="name"></p>
+		  <p ng-bind="name"></p>
+		</div>
+	ng-bind 指令把应用程序数据绑定到某个段落的 innerHTML。
+	ng-init 指令初始化 AngularJS 应用程序变量。（不常用）
+		<div ng-app="" ng-init="firstName='John'">
+			<p>姓名为 <span ng-bind="firstName"></span></p>
+		</div>
+		<div ng-app="" ng-init="firstName='John'">
+			<p>姓名为{{firstName}}</p>
+		</div>
+2、AngularJS表达式
+		<div ng-app="" ng-init="quantity=1;cost=5">初始化参数
+			<p>总价： {{ quantity * cost }}</p>
+		</div>
+		<div ng-app="" ng-init="person={firstName:'John',lastName:'Doe'}">初始化对象
+			<p>姓为 {{ person.lastName }}</p>
+		</div>
+		<div ng-app="" ng-init="points=[1,15,19,2,40]">初始化数组
+			<p>第三个值为 {{ points[2] }}</p>
+		</div>
+3、AngularJS指令
+	ng-repeat 指令会重复一个 HTML 元素
+		<div ng-app="" ng-init="names=['Jani','Hege','Kai']">
+		  <p>使用 ng-repeat 来循环数组</p>
+		  <ul>
+			<li ng-repeat="x in names">
+			  {{ x }}
+			</li>
+		  </ul>
+		<div>
+		<div ng-app="" ng-init="names=[{name:'Jani',country:'Norway'},{name:'Hege',country:'Sweden'},{name:'Kai',country:'Denmark'}]">
+			<p>循环对象：</p>
+			<ul>
+			  <li ng-repeat="x in names">
+				{{ x.name + ', ' + x.country }}
+			  </li>
+			</ul>
+		</div>
+4、AngularJS SCOPE作用域
+	所有的应用都有一个 $rootScope，它可以作用在 ng-app 指令包含的所有 HTML 元素中。
+	$rootScope 可作用于整个应用中。是各个 controller 中 scope 的桥梁。用 rootscope 定义的值，可以在各个 controller 中使用。
+5、AngularJS 控制器
+	ng-controller 指令定义了应用程序控制器。
+		<div ng-app="myApp" ng-controller="personCtrl">
+			名: <input type="text" ng-model="firstName"><br>
+			姓: <input type="text" ng-model="lastName"><br>
+			姓名: {{firstName + " " + lastName}}
+			姓名: {{fullName()}}								指定方法
+		</div>
+		<script>
+			var app = angular.module('myApp', []);
+			app.controller('personCtrl', function($scope) {
+				$scope.firstName = "John";
+				$scope.lastName = "Doe";
+				$scope.fullName = function() {
+					return $scope.firstName + " " + $scope.lastName;
+				}
+			});
+		</script>
+5、AngularJS 过滤器
+	currency	格式化数字为货币格式。
+	filter		从数组项中选择一个子集。
+	lowercase	格式化字符串为小写。
+	orderBy		根据某个表达式排列数组。
+	uppercase	格式化字符串为大写
+	
+	向表达式添加过滤器	<div ng-app="myApp" ng-controller="personCtrl">
+							<p>姓名为 {{ lastName | uppercase }}</p>
+						</div>
+	向指令添加过滤器	<div ng-app="myApp" ng-controller="namesCtrl">
+							<ul>
+							  <li ng-repeat="x in names | orderBy:'country'">
+								{{ x.name + ', ' + x.country }}
+							  </li>
+							</ul>
+						<div>
+	过滤输入
+		输入过滤器可以通过一个管道字符（|）和一个过滤器添加到指令中，该过滤器后跟一个冒号和一个模型名称。
+		filter 过滤器从数组中选择一个子集：
+						<p><input type="text" ng-model="test"></p>
+						<ul>
+						  <li ng-repeat="x in names | filter:test | orderBy:'country'">
+							{{ (x.name | uppercase) + ', ' + x.country }}
+						  </li>
+						</ul>
+6、AngularJS 服务service
+	有个 $location 服务，它可以返回当前页面的 URL 地址。注意 $location 服务是作为一个参数传递到 controller 中。如果要使用它，需要在 controller 中定义。
+		var app = angular.module('myApp', []);
+			app.controller('customersCtrl', function($scope, $location) {
+			$scope.myUrl = $location.absUrl();
+		});
+	$http 是 AngularJS 应用中最常用的服务。服务向服务器发送请求，应用响应服务器传送过来的数据。
+		var app = angular.module('myApp', []);
+			app.controller('myCtrl', function($scope, $http) {
+			$http.get("/statics/demosource/welcome.htm").then(function (response) {
+				$scope.myWelcome = response.data;
+			});
+		});
+	$timeout 服务
+		var app = angular.module('myApp', []);
+			app.controller('myCtrl', function($scope, $timeout) {
+			$scope.myHeader = "Hello World!";
+			$timeout(function () {
+				$scope.myHeader = "How are you today?";
+			}, 2000);
+		});
+	$interval 服务
+		var app = angular.module('myApp', []);
+			app.controller('myCtrl', function($scope, $interval) {
+			$scope.theTime = new Date().toLocaleTimeString();
+			$interval(function () {
+				$scope.theTime = new Date().toLocaleTimeString();
+			}, 1000);
+		});
+	创建自定义服务
+		app.service('hexafy', function() {
+			this.myFunc = function (x) {
+				return x.toString(16);
+			}
+		});
+		app.controller('myCtrl', function($scope, hexafy) {
+			$scope.hex = hexafy.myFunc(255);
+		});
+7、AngularJS Http
+	$http 是 AngularJS 中的一个核心服务，用于读取远程服务器的数据。
+	<script>
+		var app = angular.module('myApp', []);
+		app.controller('customersCtrl', function($scope, $http) {
+		  $http.get("/statics/demosource/Customers_JSON.php")
+		  .success(function (response) {$scope.names = response.records;});读取服务端响应的json数据
+		});
+	</script>
+8、AngularJS Select选择框
+	ng-repeat 指令是通过数组来循环 HTML 代码来创建下拉列表，但 ng-options 指令更适合创建下拉列表，它有以下优势：
+	使用 ng-options 的选项的一个对象， ng-repeat 是一个字符串。
+	<select ng-model="selectedName" ng-options="x for x in names">这个ng-model必须有，将选择的值放入selectName变量中
+	<select>
+		<option ng-repeat="x in names">{{x}}</option>
+	</select>
+	$scope.sites = [
+    {site : "Google", url : "http://www.google.com"},
+    {site : "W3CSchool", url : "http://www.w3cschool.cn"},
+    {site : "Taobao", url : "http://www.taobao.com"}];
+	<select ng-model="selectedSite">
+		<option ng-repeat="x in sites" value="{{x.url}}">{{x.site}}</option>
+	</select>
+	<h1>你选择的是: {{selectedSite}}</h1>
+	
+	<select ng-model="selectedSite" ng-options="x.site for x in sites"></select>
+	<h1>你选择的是: {{selectedSite.site}}</h1>
+	<p>网址为: {{selectedSite.url}}</p>
+9、AngularJS 表格
+	<table>
+	  <tr ng-repeat="x in names">    repeat必须这么写：$scope.names=[{Name:"li",Country:"ki1"}];
+		<td>{{ x.Name }}</td>
+		<td>{{ x.Country }}</td>
+	  </tr>
+	</table>
+10、AngularJS HTML DOM
+	ng-disabled 指令
+	ng-show 指令               取值都是true   false
+11、AngularJS HTML事件
+	ng-click 指令
+		<button ng-click="count = count + 1">点我！</button>
+	ng-hide 指令用于设置应用的一部分 不可见 。
+	ng-hide="true" 让 HTML 元素 不可见。
+	ng-hide="false" 让元素可见。
+12、AngularJS 模块
+	<div ng-app="myApp" runoob-directive></div>
+	<script>
+		var app = angular.module("myApp", []);
+		app.directive("runoobDirective", function() {
+			return {
+				template : "我在指令构造器中创建!"
+			};
+		});
+	</script>
+13、AngularJS 表单
+	var app = angular.module('myApp', []);
+	app.controller('formCtrl', function($scope) {
+		$scope.master = {firstName:"John", lastName:"Doe"};
+		$scope.reset = function() {
+			$scope.user = angular.copy($scope.master);
+		};
+		$scope.reset();
+	});
+14、AngularJS 输入验证
+15、AngularJS API							API 意为 Application Programming Interface（应用程序编程接口）。
+	angular.lowercase()	转换给定字符串为小写
+	angular.uppercase()	转换给定字符串为大写
+	angular.isString()	判断给定的对象是否为字符串，如果是返回 true。
+	angular.isNumber()	判断给定的对象是否为数字，如果是返回 true。
+16、AngularJS include包含
+	 ng-include 指令来包含 HTML 内容:
+17、AngularJS 动画
+	AngularJS 提供了动画效果，可以配合 CSS 使用。
+	AngularJS 使用动画需要引入 angular-animate.min.js 库。<script src="http://apps.bdimg.com/libs/angular.js/1.4.6/angular-animate.min.js"></script>
+	<body ng-app="ngAnimate">
+		隐藏 DIV: <input type="checkbox" ng-model="myCheck">    复选框不选默认值为false
+		<div ng-hide="myCheck"></div>
+	</body>
+	
+	或者：如果我们应用已经设置了应用名，可以把 ngAnimate 直接添加在模型中：
+	<body ng-app="myApp">
+		<h1>隐藏 DIV: <input type="checkbox" ng-model="myCheck"></h1>
+	<div ng-hide="myCheck"></div>
+	<script>
+		var app = angular.module('myApp', ['ngAnimate']);
+	</script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
